@@ -1,0 +1,69 @@
+version: '3.9'
+services:
+  herconomyapp:
+    build: .
+    image: app:django-herconomy
+    container_name: django_herconomy_container
+    ports:
+       - "8001:8000"
+    environment:
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1
+      - PORT=8000
+      - CELERY_TIMEZONE='Africa/Lagos'
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    command: sh -c "python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/django-herconomy
+      - static_volume:/django-herconomy/static
+      - media_volume:/django-herconomy/media
+    
+    depends_on:
+      - redis
+    
+  redis:
+    image: redis:alpine
+    container_name: redis
+    
+  herconomycelery:
+    restart: always
+    build:
+      context: .
+    command: celery -A herconomy_proj worker -l INFO 
+    volumes:
+      - .:/django-herconomy
+    environment:
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_TIMEZONE='Africa/Lagos'
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    container_name: herconomycelery
+    depends_on:
+      - redis
+      - herconomyapp  
+
+  herconomycelerybeat:
+    restart: always
+    build:
+      context: .
+    command: celery -A herconomy_proj beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/django-herconomy
+    environment:
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_TIMEZONE='Africa/Lagos'
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    container_name: herconomycelerybeat
+    depends_on:
+      - redis
+      - herconomyapp
+      
+volumes:
+  pgdata:
+  static_volume:
+  media_volume:
+
+networks:
+  djangonetwork:
+    driver: bridge
