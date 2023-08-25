@@ -2,6 +2,7 @@
 	"info": {
 		"_postman_id": "a3f8144a-0ba2-4164-bddd-121438e21d30",
 		"name": "herconomy",
+		"description": "API for Funds transfer and withdrawal with a simple real-time transaction monitoring API: that evaluates policies and sends notifications via email  \nwhen certain conditions are met.\n\nTo access the Funds transfer and withdraw endpoint, login with the login endpoint, this will generate a response with token:\n\n> {  \n\"id\": 1,  \n\"email\": \"[ugokingsl5@gmail.com](https://mailto:ugokingsl5@gmail.com)\",  \n\"token\": \"b31c1ee93f0b96e1b24ddb8eac5827a71cbd3752db8c3916b3e5734a91078129\"  \n} \n  \n\nFor each API call set an Authorization header thus:\n\n> Authorization : Token b31c1ee93f0b96e1b24ddb8eac5827a71cbd3752db8c3916b3e5734a91078129",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "3112962"
 	},
@@ -151,7 +152,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"description": "Authentication Collection:\n\n- Registration  \n    {{ baseURL}}/api/v1/register/\n    \n- Login\n    \n\n{{ baseURL }}/api/v1/login/\n\n- Get User\n    \n\n{{ baseURL }}/api/v1/get_user"
 		},
 		{
 			"name": "Transaction",
@@ -256,7 +258,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"description": "This collection contains endpoints for funds withdrawal and transfer:\n\n- Withdraw  \n    {{ baseURL }}/api/v1/withdraw\n    \n- Transfer\n    \n\n{{ baseURL }}/api/v1/funds-transfer"
 		}
 	]
 }
