@@ -132,8 +132,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp-relay.sendinblue.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "payconnectglobal@gmail.com"
-EMAIL_HOST_PASSWORD = "IXdkfj2N1RKa8GZW"
+EMAIL_HOST_USER = "payconn444ectglobal@gmail.com"
+EMAIL_HOST_PASSWORD = "IXdkfj2N1444444444RKa8GZW"
 DEFAULT_FROM_EMAIL = 'HERCONOMY - NOTIFICATION <payconnectglobal@api.com>'
 
 '''
@@ -142,8 +142,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.gigazone.com.ng'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "secentry@gigazone.com.ng"
-EMAIL_HOST_PASSWORD = "Secure2021@"
+EMAIL_HOST_USER = "seceeeeeentry@gigazeeone.com.ng"
+EMAIL_HOST_PASSWORD = "Seeeecur444443e2021@"
 DEFAULT_FROM_EMAIL = 'PROMPT PAY <secentry@gigazone.com.ng>'
 '''
 
