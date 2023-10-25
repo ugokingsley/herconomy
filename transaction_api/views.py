@@ -84,13 +84,13 @@ def login_api(request):
                     return Response({'error':'5 failed login attempts, try again in 5 minutes'}, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     _, token = AuthToken.objects.create(user)
-
+                    user_check.delete()
                     return Response({
                     'id': user.id,
                     'email': user.email,
                     'token':token  
                     })
-                    user_check.delete()
+                    
                 
             #else:
             #    return Response({'error':'Cannot Log In after 5 minutes'}, status=status.HTTP_400_BAD_REQUEST)
