@@ -9,3 +9,5 @@ admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(User)
 
 admin.site.register(Tier)
+
+admin.site.register(AccessAttempt)

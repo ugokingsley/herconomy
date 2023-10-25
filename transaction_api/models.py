@@ -12,6 +12,9 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
+#from axes.models import AccessAttempt
+from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class Tier(models.Model):
@@ -86,6 +89,16 @@ class User(AbstractUser):
                 
     class Meta:
         ordering = ["-pk"]
+
+
+class AccessAttempt(models.Model):
+    user = models.EmailField(null=True)
+    attempt_count = models.IntegerField(default=0)
+    time_last_unsuccessful_login = models.DateTimeField(auto_now_add=True, null=True)
+
+    def __str__(self):
+        return str(self.user)
+
 
 class Transaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True,null=True)

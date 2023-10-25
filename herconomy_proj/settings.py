@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'corsheaders',         # handling the server headers required for Cross-Origin Resource Sharing (CORS)
     'rest_framework',      # for build REST API apps with django
     'knox',                # a token-based authentication for Django Rest Framework
+    'axes',
 
     #core app
     'transaction_api'
@@ -46,6 +47,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    #'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'herconomy_proj.urls'
@@ -146,7 +149,16 @@ EMAIL_HOST_USER = "secentry@gigazone.com.ng"
 EMAIL_HOST_PASSWORD = "Secure2021@"
 DEFAULT_FROM_EMAIL = 'PROMPT PAY <secentry@gigazone.com.ng>'
 '''
+'''
+AUTHENTICATION_BACKENDS = [
+    # AxesStandaloneBackend should be the first backend in the AUTHENTICATION_BACKENDS list.
+    'axes.backends.AxesStandaloneBackend',
+    #'transaction_api.backends.MyBackend',
 
+    # Django ModelBackend is the default authentication backend.
+    'django.contrib.auth.backends.ModelBackend',
+]
+'''
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
@@ -191,3 +203,9 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Africa/Lagos'
+
+#AXES_FAILURE_LIMIT = 2
+#AXES_RESET_ON_SUCCESS = True
+#AXES_COOLOFF_TIME = 0.1
+#AXES_ENABLE_ADMIN = True
+#AXES_LOCKOUT_CALLABLE = "transaction_api.views.timeout"

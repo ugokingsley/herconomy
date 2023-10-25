@@ -1,6 +1,14 @@
+import datetime
+#from axes.models import AccessAttempt
+from django.contrib.auth import login, authenticate
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.views import View
+from .models import *
+from django.shortcuts import  get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.authtoken.serializers import AuthTokenSerializer
+#from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework import viewsets, permissions
 from django_filters.rest_framework import DjangoFilterBackend
 from knox.auth import AuthToken
@@ -46,15 +54,101 @@ def login_api(request):
     serializer = AuthTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     user = serializer.validated_data['user']
-    _, token = AuthToken.objects.create(user)
-    if token:
-        return Response({
-        'id': user.id,
-        'email': user.email,
-        'token':token  
-        })
-    else:
-        return Response({'error':'Cannot Log In'}, status=status.HTTP_400_BAD_REQUEST)
+    #user_check = AccessAttempt.objects.get(user=request.data['username'])
+    #user_check = get_object_or_404(AccessAttempt, user=request.data['username'])
+
+    #if AccessAttempt.objects.filter(user=request.data['username']).exists():
+    try:
+        if User.objects.filter(email=request.data['username']).exists():
+            user_check = AccessAttempt.objects.get(user=request.data['username'])
+            user_check.attempt_count = user_check.attempt_count + 1
+            user_check.save()
+
+            if not user and (user_check.attempt_count == 2):
+                return Response({'error':'Incorrect password'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not user and (user_check.attempt_count >= 3 and user_check.attempt_count < 5):
+                return Response({'error':'3 failed login attempts, try again in 3 minutes'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not user and user_check.attempt_count >= 5:
+                return Response({'error':'5 failed login attempts, try again in 5 minutes'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if user:
+                login_time_diff = now1 - user_check.time_last_unsuccessful_login
+                login_time_diff_minute = login_time_diff.total_seconds() / 60
+
+                print('time-diff',login_time_diff_minute)
+                if user_check.attempt_count >= 3 and login_time_diff_minute <= 3:
+                    return Response({'error':'3 failed login attempts, try again in 3 minutes'}, status=status.HTTP_400_BAD_REQUEST)
+                elif user_check.attempt_count >= 5 and login_time_diff_minute <= 5:
+                    return Response({'error':'5 failed login attempts, try again in 5 minutes'}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    _, token = AuthToken.objects.create(user)
+
+                    return Response({
+                    'id': user.id,
+                    'email': user.email,
+                    'token':token  
+                    })
+                    user_check.delete()
+                
+            #else:
+            #    return Response({'error':'Cannot Log In after 5 minutes'}, status=status.HTTP_400_BAD_REQUEST)
+                
+        else:
+            return Response({'error':'Invalid Login Details'}, status=status.HTTP_400_BAD_REQUEST)
+    except AccessAttempt.DoesNotExist:
+        if user:
+            _, token = AuthToken.objects.create(user)
+            return Response({
+                'id': user.id,
+                'email': user.email,
+                'token':token  
+            })
+        else:
+            AccessAttempt.objects.create(user = request.data['username'],attempt_count =+ 1)
+            return Response({'error':'Incorrect password'}, status=status.HTTP_400_BAD_REQUEST)
+    
+        
+'''
+def timeout(request):
+    try:
+        loginview = login_api(request)
+        username = request.data['username'],
+        ip_address = request.axes_ip_address
+        account = AccessAttempt.objects.filter(username=username).filter(ip_address=ip_address)
+        
+        current_time = datetime.datetime.now()
+        number_of_attempts = account.failures_since_start
+        threshold = (number_of_attempts / 5) * 5
+       
+        error = {'message':f"Access attempts exceeded. Please wait {threshold} minutes"}
+'''        
+       # result = AccessAttempt.objects.raw(
+        #    '''
+        #    SELECT axes_accessattempt.id, login_accessattemptaddons.expiration_date
+        #    FROM axes_accessattempt
+        #    INNER JOIN login_accessattemptaddons
+        #    ON axes_accessattempt.id = login_accessattemptaddons.accessattempt_id
+        #    WHERE axes_accessattempt.username = %s and axes_accessattempt.ip_address = %s
+       #     ''', #[username, ip_address]
+       # )[0]
+'''
+
+        if(current_time < result.expiration_date):
+            return Response(error)
+        else:
+            account.delete()
+            account_page = loginview.post(request)
+            return account_page
+
+    except IndexError:
+        expiration_date = current_time + datetime.timedelta(minutes=threshold)
+        id = AccessAttempt.objects.filter(username=username, ip_address=ip_address)[0].id
+        addons = AccessAttemptAddons(expiration_date=expiration_date, accessattempt_id=id)
+        addons.save()
+        return Response(error)
+'''
 
 @api_view(['GET'])
 def get_user_api(request):
